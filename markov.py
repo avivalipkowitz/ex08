@@ -1,25 +1,20 @@
 #!/usr/bin/env python
+from random import randint
 
-def make_chains(corpus):
-    """Takes an input text as a string and returns a dictionary of
-    markov chains."""
-    return {}
-
-def make_text(chains):
-    """Takes a dictionary of markov chains and returns random text
-    based off an original text."""
-    return "Here's some random text."
-
-def main():
+def read_file():
     from sys import argv
-    from random import randint
 
-    input_file = argv[1]
-    myfile = open(input_file)
+    for i in range(1, len(argv)):
+        input_file = argv[i]
+        myfile = open(input_file)
 
-    clean_text = myfile.read()
-    clean_text = clean_text.lower()
-    word_list = clean_text.split()
+        clean_text = myfile.read()
+        clean_text = clean_text.lower()
+        word_list = clean_text.split()
+
+    return word_list
+
+def create_monogram(word_list):
 
     monogram = {}
     for i in range(0, len(word_list)-1):
@@ -28,6 +23,10 @@ def main():
         else:
             value = [word_list[i + 1]]
             monogram.update({word_list[i]: value}) # if not, create new entry in dict
+
+    return monogram
+
+def create_bigram(word_list):
 
     bigram = {}
 
@@ -39,9 +38,24 @@ def main():
             bigram[(w1, w2)] = [w3]
         else: 
             bigram[(w1,w2)].append(w3)
+    return bigram
 
+# def create_ngram(word_list,n):
 
-        
+#     n_gram = {}
+
+#     for i in range(0, len(word_list)-(n+1)):
+#         n_tuple_list = []
+#         for j in range(0,(n+1)):
+#             n_tuple_list.append(word_list[i+j])
+#             n_tuple = tuple(n_tuple_list)
+#             if not n_tuple in n_gram:
+#                 n_gram[n_tuple] = word_list[i+n]
+#             else:
+#                 n_gram[n_tuple].append(word_list[i+n])
+#     return n_gram
+
+def make_text(word_list, monogram, bigram):
     monogram_key_list = monogram.keys()
 
     word_1_index = randint(0,len(monogram.keys()) - 1)
@@ -56,7 +70,7 @@ def main():
     keep_adding = True
     crazy_text_list_index = 0
 
-    while keep_adding:
+    while keep_adding and crazy_text_list_index < 500:
         w1 = crazy_text_list[crazy_text_list_index]
         w2 = crazy_text_list[crazy_text_list_index+1]
         bigram_pair = (w1,w2)
@@ -68,10 +82,19 @@ def main():
             crazy_text_list_index += 1
         else:
             keep_adding = False
-                
-    #    print crazy_text_list
 
     crazy_text = " ".join(crazy_text_list)
+    return crazy_text
+
+def main():
+
+    word_list = read_file()
+    monogram = create_monogram(word_list)
+    bigram = create_bigram(word_list)
+    crazy_text = make_text(word_list, monogram, bigram)
+    # n_gram = create_ngram(word_list,n)
+    # crazy_text = make_text(word_list, monogram, n_gram)
+
     print crazy_text
 
 if __name__ == "__main__":
